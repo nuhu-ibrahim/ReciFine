@@ -45,7 +45,7 @@ ReciFine provides a lightweight inference wrapper for recipe NER.
 ### Code Sample 1 (Knowledge-guided inference)
 Below is a code sample showing how to extract QUANTITY entities from a text using the model (bert_base_uncased) trained on the ReciFineGold dataset and using the knowledge-augmented and entity-specific formulation with **QUESTION** knowledge-type.
 ```python
-pip install https:///archive/refs/tags/V1.zip
+pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 
 from recifine.inference import RecifineNER
 
@@ -72,7 +72,7 @@ TODO: add sample outputs
 ### Code Sample 2 (Traditional inference)
 Below shows code sample for extracting entities from text using the model (bert_base_uncased) trained on ReciFineGold dataset using the traditional (BIO-n) approach.
 ```python
-pip install https:///archive/refs/tags/V1.zip
+pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 
 from recifine.inference import RecifineNER
 
