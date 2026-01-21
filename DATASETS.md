@@ -13,7 +13,7 @@
 
 ## ReciFineGold: Gold-Standard Dataset
 
-**ReciFineGold** consists of **500 manually annotated real-world recipes**, annotated by expert annotators following detailed ERFG guidelines.
+**ReciFineGold** consists of **500 manually annotated real-world recipes**, annotated by expert annotators following the [Recipe Case Study Paper](https://www.dl.soc.i.kyoto-u.ac.jp/~tajima/papers/hmdata18yamakatawww.pdf) guidelines.
 
 Key properties:
 - Token-level annotations for all 10 ERFG entity types
@@ -61,11 +61,10 @@ type, along with their most frequent entities.
 - **200 randomly selected test recipes** were used.
 - Each recipe was **generated 10 times** by a model to account for stochasticity in generation using 5 different
   extracted prompt context type.
-- Scores were averaged across generations.
 
 ### Human Evaluation
 
-Human evaluation was conducted to assess qualities that automatic metrics cannot fully capture, such as realism, creativity, and usability.
+Human evaluation was conducted to assess the quality of automatically generated recipes that automatic metrics cannot fully capture, such as realism, creativity, and usability.
 
 ### Annotation Setup
 - Recipes were rated on a **5-point Likert scale**:

@@ -1,7 +1,7 @@
 # Foodbase Dataset
 
 ## Overview
-FoodBase is an annotated food entity corpus built from Allrecipes data. It includes food entity annotations mapped to semantic categories from the Hansard tagset, providing both a manually curated gold standard corpus.
+FoodBase is an annotated food entity corpus built from AllRecipes data. It includes food entity annotations mapped to semantic categories from the Hansard tagset, providing both a manually curated gold standard corpus.
 
 ---
 
@@ -27,7 +27,7 @@ The file `FoodBase_curated.xml` is an XML-structured recipe corpus with span-bas
 
 - Each `<document>` contains a recipe with metadata and full text in `<infon key="full_text">`.  
 - Food entities are marked as separate `<annotation>` elements.  
-- Each annotation specifies a character **offset** and **length**, the exact entity text.
+- Each annotation specifies a character **offset** and **length** and the exact entity text.
 
 ---
 

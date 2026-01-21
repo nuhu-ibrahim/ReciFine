@@ -11,7 +11,7 @@ The ReciFine library implements the knowledge-augmented and entity-specific toke
 ```
 
 Unlike traditional BIO-n NER, where all entity types are predicted jointly from raw text, this approach reformulates
-NER as an entity-specific task. The model is guided to identify instances of one entity type at a time by prepending
+NER as an entity-type specific task. The model is guided to identify instances of one entity-type at a time by prepending
 a curated knowledge prefix to the input text. This library also supports the traditional BIO-n NER.
 
 ---
@@ -21,7 +21,7 @@ a curated knowledge prefix to the input text. This library also supports the tra
 ### Option A: Install from source (recommended)
 
 ```bash
-git clone <YOUR_GITHUB_REPO_URL>
+git clone https://github.com/nuhu-ibrahim/ReciFine
 cd Recifine
 pip install -e .
 ```
@@ -29,7 +29,7 @@ pip install -e .
 ### Option B: Install from a GitHub release tag (example)
 
 ```bash
-pip install https://github.com/<YOUR_ORG>/<YOUR_REPO>/archive/refs/tags/V1.zip
+pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 ```
 
 ---
@@ -43,11 +43,11 @@ python3 scripts/predict.py ...
 ```
 
 Prediction uses the layered configuration system:
-- `--dataset` loads configuration from the path **configs/datasets/<dataset>/paper.yaml**
-- `--model` loads appropriate models from the path **configs/base_config/<model>.yaml**
+- `--dataset` loads configuration from the path **configs/datasets/\<dataset>/paper.yaml**
+- `--model` loads appropriate models from the path **configs/base_config/\<model>.yaml**
 - `--task_formulation` tells whether the model to be used for prediction was trained using ``knowledge_augmented`` or
   ``traditional``
-- `--knowledge_type` loads knowledge type from the path **configs/knowledge_type_config/<knowledge_type>.yaml** when
+- `--knowledge_type` loads knowledge type from the path **configs/knowledge_type_config/\<knowledge_type>.yaml** when
   prediction model is **knowledge-augmented**
 - `--model_name_or_path` the trained model **HF_MODEL_ID** or **LOCAL_CHECKPOINT_DIR** to be used for the prediction.
 - `--dataset_to_predict` the folder or list of folders containing the .jsonl file(s) to be predicted.

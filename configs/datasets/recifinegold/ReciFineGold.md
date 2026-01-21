@@ -35,7 +35,7 @@ The dataset defines the following semantic entity types that were adopted from t
 ### Download link:
 The dataset is available for download under CC BY-NC 4.0 on HuggingFace through the link below.
 
-[https://huggingface.co/datasets/Atnafu/Afri-MCQA](https://huggingface.co/datasets/Atnafu/Afri-MCQA)
+[https://huggingface.co/datasets/nuhuibrahim/recifinegold](https://huggingface.co/datasets/nuhuibrahim/recifinegold)
 
 ### Download steps
 1. Download the file `recifinegold.jsonl` from the link above.
