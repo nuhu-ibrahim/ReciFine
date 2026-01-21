@@ -1,0 +1,42 @@
+dataset_name: foodbase
+original_dataset: configs/datasets/foodbase/data/FoodBase_curated.xml
+
+# config for knowledge augmented
+data_dir_ka: configs/datasets/foodbase/data_ka   # where train.jsonl/val.jsonl/test.jsonl exist
+dataset_to_evaluate_ka: 
+  - test # folder of the jsonl data to evaluate
+dataset_to_predict_ka: 
+  - test # folder of the jsonl data to predict
+output_dir_ka: configs/datasets/foodbase/output_ka # where the trained/finetuned models or predictions are saved
+
+# config for traditional
+data_dir_trad: configs/datasets/foodbase/data_trad   # where train.jsonl/val.jsonl/test.jsonl exist
+dataset_to_evaluate_trad: 
+  - test # folder of the jsonl data to evaluate
+dataset_to_predict_trad: 
+  - test # folder of the jsonl data to predict
+output_dir_trad: configs/datasets/foodbase/output_trad # where the trained/finetuned models or predictions are saved
+labels_trad: configs/datasets/foodbase/data_trad # a folder to jsonl data files where the possible output labels may be picked
+
+do_train: true
+do_eval: true
+evaluate_during_training: true
+overwrite_output_dir: true
+per_gpu_train_batch_size: 128
+per_gpu_eval_batch_size: 128
+num_train_epochs: 10
+
+entity_groups:
+  - name: FOOD
+    tags: [FOOD]
+    type: food
+    group: food
+    group_definition: "Food is any substance consumed to provide nutritional support or used in a recipe."
+    definition: "Food is any substance consumed to provide nutritional support or used in a recipe."
+    examples: ["butter", "vegetable oil", "red bell pepper", "honey maid graham crumbs", "salt", "pepper"]
+    question: "What is the food mentioned in the text?"
+
+split_ratios:
+  train: 0.8
+  val: 0.1
+  test: 0.1

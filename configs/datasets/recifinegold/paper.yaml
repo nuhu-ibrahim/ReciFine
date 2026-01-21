@@ -1,0 +1,162 @@
+dataset_name: recifinegold
+original_dataset: configs/datasets/recifinegold/data/recifinegold.jsonl
+
+# config for knowledge augmented
+data_dir_ka: configs/datasets/recifinegold/data_ka   # where train.jsonl/val.jsonl/test.jsonl exist
+dataset_to_evaluate_ka: 
+  - test # folder of the jsonl data to evaluate
+dataset_to_predict_ka: 
+  - test # folder of the jsonl data to predict
+output_dir_ka: configs/datasets/recifinegold/output_ka # where the trained/finetuned models or predictions are saved
+
+# config for traditional
+data_dir_trad: configs/datasets/recifinegold/data_trad   # where train.jsonl/val.jsonl/test.jsonl exist
+dataset_to_evaluate_trad: 
+  - test # folder of the jsonl data to evaluate
+dataset_to_predict_trad: 
+  - test # folder of the jsonl data to predict
+output_dir_trad: configs/datasets/recifinegold/output_trad # where the trained/finetuned models or predictions are saved
+labels_trad: configs/datasets/recifinegold/data_trad # a folder to jsonl data files where the possible output labels may be picked
+
+do_train: true
+do_eval: true
+evaluate_during_training: true
+overwrite_output_dir: true
+per_gpu_train_batch_size: 128
+per_gpu_eval_batch_size: 128
+num_train_epochs: 10
+
+model_registry:
+  bert_base_uncased:
+    traditional:
+      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-trad"
+    question:
+      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-question"
+    entity_type:
+      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-entity-type"
+    definition:
+      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-definition"
+    example:
+      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-example"
+    all:
+      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-all"
+
+  roberta_base:
+    traditional:
+      hf_repo: "nuhuibrahim/recifinegold-roberta-base-trad"
+    question:
+      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-question"
+    entity_type:
+      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-entity-type"
+    definition:
+      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-definition"
+    example:
+      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-example"
+    all:
+      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-all"
+
+entity_groups:
+  - name: FOOD
+    tags: [F]
+    doccano_labels: ["Food"]
+    type: food
+    group: food
+    group_definition: "Food is any substance consumed to provide nutritional support or used in a recipe."
+    definition: "Food is any substance consumed to provide nutritional support or used in a recipe."
+    examples: ["butter", "vegetable oil", "red bell pepper", "honey maid graham crumbs", "salt", "pepper"]
+    question: "What is the food mentioned in the text?"
+
+  - name: TOOL
+    tags: [T]
+    doccano_labels: ["Tool"]
+    type: tool
+    group: tool
+    group_definition: "A tool is an object used to perform a specific function in cooking."
+    definition: "A tool is an object used to perform a specific function in cooking."
+    examples: ["knife", "blender", "dish", "plate", "mixer"]
+    question: "What is the tool mentioned in the text?"
+
+  - name: DURATION
+    tags: [D]
+    doccano_labels: ["Duration"]
+    type: duration
+    group: duration
+    group_definition: "Duration represents the length of time required for a cooking action or process."
+    definition: "Duration represents the length of time required for a cooking action or process."
+    examples: ["10", "about 20 minutes", "30 seconds", "5 to 7 minutes", "a few minutes"]
+    question: "What is the duration mentioned in the text?"
+
+  - name: QUANTITY
+    tags: [Q]
+    doccano_labels: ["Quantity"]
+    type: quantity
+    group: quantity
+    group_definition: "Quantity represents the specific amount of an ingredient used in a recipe."
+    definition: "Quantity represents the specific amount of an ingredient used in a recipe."
+    examples: ["1 cup", "other", "a pinch", "500 grams", "any", "some extra", "some"]
+    question: "What is the quantity mentioned in the text?"
+
+  - name: ACTION_BY_CHEF
+    tags: [Ac]
+    doccano_labels: ["Action by chef"]
+    type: "action by chef"
+    group: "action by chef"
+    group_definition: "Actions by the chef involve verbs representing direct human interaction with food or tools."
+    definition: "Actions by the chef involve verbs representing direct human interaction with food or tools."
+    examples: ["chop", "stir", "bake", "whisk", "fry", "add"]
+    question: "What is the action performed by the chef mentioned in the text?"
+
+  - name: ACTION_BY_CHEF_DISCONTINUOUS
+    tags: [Ac2]
+    doccano_labels: ["Discontinuous Action by Chef"]
+    type: "discontinuous action"
+    group: "discontinuous action"
+    group_definition: "A discontinuous action refers to non-contiguous parts of a single action by the chef."
+    definition: "A discontinuous action refers to non-contiguous parts of a single action by the chef."
+    examples: ["stir", "cat", "to taste", "off"]
+    question: "What is the discontinuous action by the chef mentioned in the text?"
+
+  - name: ACTION_BY_FOOD
+    tags: [Af]
+    doccano_labels: ["Action by food"]
+    type: "action by food"
+    group: "action by food"
+    group_definition: "Actions by food involve verbs representing changes occurring to food."
+    definition: "Actions by food involve verbs representing changes occurring to food."
+    examples: ["melt", "boil", "marinate", "taste", "resembles", "burn"]
+    question: "What is the action performed by the food mentioned in the text?"
+
+  - name: ACTION_BY_TOOL
+    tags: [At]
+    doccano_labels: ["Action by tool"]
+    type: "action by tool"
+    group: "action by tool"
+    group_definition: "Actions by tools represent verbs describing what a tool does in the cooking process."
+    definition: "Actions by tools represent verbs describing what a tool does in the cooking process."
+    examples: ["cut", "mix", "grate", "squeeze", "comes out"]
+    question: "What is the action performed by the tool mentioned in the text?"
+
+  - name: FOOD_STATE
+    tags: [Sf]
+    doccano_labels: ["Food state"]
+    type: "food state"
+    group: "food state"
+    group_definition: "Food states describe the initial or intermediate condition of food during preparation."
+    definition: "Food states describe the initial or intermediate condition of food during preparation."
+    examples: ["chopped", "melted", "frozen", "cooked", "raw", "firm", "browned"]
+    question: "What is the state of the food mentioned in the text?"
+
+  - name: TOOL_STATE
+    tags: [St]
+    doccano_labels: ["Tool state"]
+    type: "tool state"
+    group: "tool state"
+    group_definition: "Tool states describe the condition or state of tools before, during, or after usage."
+    definition: "Tool states describe the condition or state of tools before, during, or after usage."
+    examples: ["large", "170 degrees C", "damp", "dry"]
+    question: "What is the state of the tool mentioned in the text?"
+
+split_ratios:
+  train: 0.7
+  val: 0.15
+  test: 0.15

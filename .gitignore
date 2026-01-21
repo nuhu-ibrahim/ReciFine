@@ -1,0 +1,29 @@
+# Ignore KA and TRAD data folders anywhere in the repo
+**/data_ka/
+**/data_trad/
+
+# Ignore KA and TRAD output folders anywhere in the repo
+**/output_ka/
+**/output_trad/
+
+# Ignore the execution folders
+**/runs/
+
+**/Recifine.egg-info
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore python venv folder
+**/venv/
+
+# Ignore python version file
+.python-version
+
+# Ignore all .list files
+**.list
+
+# Ignore pycache folders
+**/__pycache__/
+
+**.idea
