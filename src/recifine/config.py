@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 import argparse
 import copy
 import os
@@ -7,18 +9,145 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+logger = logging.getLogger(__name__)
+
 import yaml
 
-def get_repo_root() -> Path:
-    here = Path(__file__).resolve()
-    for parent in [here] + list(here.parents):
-        if (parent / "pyproject.toml").exists():
-            return parent
-        if (parent / ".git").exists():
-            return parent
-        if (parent / "configs").exists():
-            return parent
+# def get_repo_root() -> Path:
+#     here = Path(__file__).resolve()
+#     for parent in [here] + list(here.parents):
+#         # if (parent / "pyproject.toml").exists():
+#         #     return parent
+#         if (parent / "config.py").exists():
+#             return parent
+#         if (parent / "src/recifine/configs").exists():
+#             return parent
 
+#     return here.parents[2]
+
+
+# def resolve_path_maybe_relative(path: str | Path, base: Path) -> Path:
+#     p = Path(path).expanduser()
+#     return (base / p).resolve() if not p.is_absolute() else p.resolve()
+
+
+# def load_yaml_config(path: Optional[str | Path]) -> Dict[str, Any]:
+#     if not path:
+#         return {}
+#     p = Path(path)
+#     if not p.exists():
+#         raise FileNotFoundError(f"Config file not found: {p}")
+#     with p.open("r", encoding="utf-8") as f:
+#         data = yaml.safe_load(f) or {}
+#     if not isinstance(data, dict):
+#         raise ValueError("YAML config must be a mapping (dict-like).")
+#     return data
+
+
+# def deep_merge_dicts(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+#     out = copy.deepcopy(base)
+#     for k, v in (override or {}).items():
+#         if k in out and isinstance(out[k], dict) and isinstance(v, dict):
+#             out[k] = deep_merge_dicts(out[k], v)
+#         else:
+#             out[k] = copy.deepcopy(v)
+#     return out
+
+
+# def load_layered_config(
+#     *,
+#     repo_root: Path,
+#     base_model: Optional[str] = None,
+#     dataset: Optional[str] = None,
+#     knowledge_type: Optional[str] = None,
+#     extra_configs: Optional[List[str]] = None,
+# ) -> Tuple[Dict[str, Any], List[Path]]:
+
+#     loaded_files: List[Path] = []
+#     cfg: Dict[str, Any] = {}
+
+#     def _load_if_exists(rel_or_abs: Optional[str | Path]) -> None:
+#         nonlocal cfg
+#         if not rel_or_abs:
+#             return
+#         p = Path(rel_or_abs)
+#         if not p.is_absolute():
+#             p = (repo_root / p).resolve()
+#         if p.exists():
+#             cfg = deep_merge_dicts(cfg, load_yaml_config(p))
+#             loaded_files.append(p)
+
+#     # Level 1: base model
+#     if base_model:
+#         _load_if_exists(f"configs/base_config/{base_model}.yaml")
+
+#     # Level 2: paper/dataset
+#     if dataset:
+#         _load_if_exists(f"configs/datasets/{dataset}/paper.yaml")
+
+#     # Level 3: info-type (only when knowledge-guided is used)
+#     if knowledge_type:
+#         _load_if_exists(f"configs/knowledge_type_config/{knowledge_type}.yaml")
+
+#     # Extra config(s) as final overrides
+#     if extra_configs:
+#         for c in extra_configs:
+#             _load_if_exists(c)
+
+#     return cfg, loaded_files
+
+
+# def merge_config_into_namespace(args: argparse.Namespace, cfg: Dict[str, Any]) -> argparse.Namespace:
+#     merged = copy.copy(args)
+
+#     for k, v in (cfg or {}).items():
+#         if not hasattr(merged, k):
+#             setattr(merged, k, v)
+#             continue
+
+#         current = getattr(merged, k)
+#         if current is None:
+#             setattr(merged, k, v)
+#         elif isinstance(current, str) and current.strip() == "":
+#             setattr(merged, k, v)
+
+#     return merged
+
+
+# ---------------------------
+# Config root discovery
+# ---------------------------
+
+def get_repo_root() -> Path:
+    """
+    Backwards-compatible name.
+
+    After moving configs to `src/recifine/configs`, this returns the *installed package root*
+    (the directory containing `recifine/__init__.py`), i.e. the base path where `configs/` lives.
+
+    This works in:
+      - editable installs (pip install -e .)
+      - wheels / zip installs (Colab)
+      - local source runs
+    """
+    here = Path(__file__).resolve()
+
+    # Case 1: Running from an installed package or editable install:
+    # config.py is typically inside .../recifine/config.py
+    # so package_root is .../recifine
+    package_root = here.parent
+    if (package_root / "configs").exists():
+        return package_root
+
+    # Case 2: If running directly from a repo checkout with src layout:
+    # Find a parent that contains src/recifine/configs
+    for parent in [here] + list(here.parents):
+        candidate = parent / "src" / "recifine"
+        if (candidate / "configs").exists():
+            return candidate
+
+    # Case 3: Fall back to original-ish behavior
+    # (kept as a last resort to avoid surprising crashes)
     return here.parents[2]
 
 
@@ -58,7 +187,16 @@ def load_layered_config(
     knowledge_type: Optional[str] = None,
     extra_configs: Optional[List[str]] = None,
 ) -> Tuple[Dict[str, Any], List[Path]]:
+    """
+    Params are unchanged.
 
+    IMPORTANT:
+    - `repo_root` is now expected to be the *package root* (the directory containing `configs/`)
+      i.e. the return value of `get_repo_root()` after you move configs to `src/recifine/configs`.
+
+    - Relative paths in `extra_configs` are resolved relative to `repo_root` (same behavior as before).
+      Absolute paths are honored as-is.
+    """
     loaded_files: List[Path] = []
     cfg: Dict[str, Any] = {}
 
@@ -73,19 +211,17 @@ def load_layered_config(
             cfg = deep_merge_dicts(cfg, load_yaml_config(p))
             loaded_files.append(p)
 
-    # Level 1: base model
+    # Expect configs to be at: <repo_root>/configs/...
+    # i.e. <package_root>/configs/...
     if base_model:
         _load_if_exists(f"configs/base_config/{base_model}.yaml")
 
-    # Level 2: paper/dataset
     if dataset:
         _load_if_exists(f"configs/datasets/{dataset}/paper.yaml")
 
-    # Level 3: info-type (only when knowledge-guided is used)
     if knowledge_type:
         _load_if_exists(f"configs/knowledge_type_config/{knowledge_type}.yaml")
 
-    # Extra config(s) as final overrides
     if extra_configs:
         for c in extra_configs:
             _load_if_exists(c)

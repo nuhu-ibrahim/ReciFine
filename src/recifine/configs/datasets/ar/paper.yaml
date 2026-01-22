@@ -1,0 +1,96 @@
+dataset_name: ar
+original_dataset: configs/datasets/ar/data/ar_complete_dataset.tsv
+
+# config for knowledge augmented
+data_dir_ka: configs/datasets/ar/data_ka   # where train.jsonl/val.jsonl/test.jsonl exist
+dataset_to_evaluate_ka: 
+  - test # folder of the jsonl data to evaluate
+dataset_to_predict_ka: 
+  - test # folder of the jsonl data to predict
+output_dir_ka: configs/datasets/ar/output_ka # where the trained/finetuned models or predictions are saved
+
+# config for traditional
+data_dir_trad: configs/datasets/ar/data_trad   # where train.jsonl/val.jsonl/test.jsonl exist
+dataset_to_evaluate_trad: 
+  - test # folder of the jsonl data to evaluate
+dataset_to_predict_trad: 
+  - test # folder of the jsonl data to predict
+output_dir_trad: configs/datasets/ar/output_trad # where the trained/finetuned models or predictions are saved
+labels_trad: configs/datasets/ar/data_trad # a folder to jsonl data files where the possible output labels may be picked
+
+do_train: true
+do_eval: true
+evaluate_during_training: true
+overwrite_output_dir: true
+per_gpu_train_batch_size: 128
+per_gpu_eval_batch_size: 128
+num_train_epochs: 10
+
+entity_groups:
+  - name: NAME
+    tags: [NAME]
+    type: name
+    group: name
+    group_definition: "Ingredients are the primary food components used in recipes."
+    definition: "Ingredients are the primary food components used in recipes."
+    examples: ["butter", "vegetable oil", "red bell pepper", "honey maid graham crumbs", "salt", "pepper"]
+    question: "What is the ingredient mentioned in the text?"
+
+  - name: STATE
+    tags: [STATE]
+    type: state
+    group: state
+    group_definition: "State is an attribute of the ingredient that usually refer to an action to be taken to prepare the ingredient."
+    definition: "State is an attribute of the ingredient that usually refer to an action to be taken to prepare the ingredient."
+    examples: ["refrigerated", "melted", "crushed", "grated", "ground", "thawed"]
+    question: "What is the state mentioned in the text?"
+
+  - name: UNIT
+    tags: [UNIT]
+    type: unit
+    group: unit
+    group_definition: "Unit describe the measurement system or scale of the quantity."
+    definition: "Unit describe the measurement system or scale of the quantity."
+    examples: ["pieces", "cup", "fluid ounce", "fluid ounces", "tablespoons"]
+    question: "What is the unit mentioned in the text?"
+
+  - name: QUANTITY
+    tags: [QUANTITY]
+    type: quantity
+    group: quantity
+    group_definition: "Quantity specify the amount of an ingredient."
+    definition: "Quantity specify the amount of an ingredient."
+    examples: ["1", "1 3/4", "4.25", "1/8", "25"]
+    question: "What is the quantity mentioned in the text?"
+
+  - name: SIZE
+    tags: [SIZE]
+    type: size
+    group: size
+    group_definition: "Size specify the portion of food."
+    definition: "Size specify the portion of food."
+    examples: ["small", "large", "medium"]
+    question: "What is the size mentioned in the text?"
+
+  - name: TEMP
+    tags: [TEMP]
+    type: temp
+    group: temp
+    group_definition: "Temperature describes the temperature measurement or conditions associated with the ingredient."
+    definition: "Temperature describes the temperature measurement or conditions associated with the ingredient."
+    examples: ["hot", "frozen", "refrigerated", "cold", "warm"]
+    question: "What is the temperature mentioned in the text?"
+
+  - name: DF
+    tags: [DF]
+    type: df
+    group: df
+    group_definition: "The condition of the ingredient whether dried or fresh."
+    definition: "The condition of the ingredient whether dried or fresh."
+    examples: ["dry", "fresh", "freshly", "torn", "dried"]
+    question: "What is the condition (dried or fresh) mentioned in the text?"
+
+split_ratios:
+  train: 0.7
+  val: 0.15
+  test: 0.15

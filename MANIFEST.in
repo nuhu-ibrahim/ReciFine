@@ -1,0 +1,1 @@
+recursive-include src/recifine/configs *.yaml *.yml
