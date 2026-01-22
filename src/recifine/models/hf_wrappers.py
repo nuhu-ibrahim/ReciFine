@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Tuple, Type
 
+from torch.optim import AdamW
+
 from transformers import (
     WEIGHTS_NAME,
-    AdamW,
     get_linear_schedule_with_warmup,
     BertConfig,
     BertForTokenClassification,
