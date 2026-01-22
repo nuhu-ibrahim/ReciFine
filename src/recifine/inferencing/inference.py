@@ -88,6 +88,7 @@ class ReciFineNER:
         device: Optional[str] = None,
         max_seq_length: int = 256,
         seed: int = 42,
+        no_cuda: bool = False
     ) -> None:
         args = argparse.Namespace(
             dataset=dataset,
@@ -99,7 +100,7 @@ class ReciFineNER:
             cache_dir="",
             max_seq_length=max_seq_length,
             seed=seed,
-            no_cuda=False,
+            no_cuda=no_cuda,
             local_rank=-1,
             labels="",
             config_name="",
@@ -159,7 +160,7 @@ class ReciFineNER:
         logger.info("Loading model/tokenizer from: %s", args.model_name_or_path)
 
         labels = []
-        if labels:
+        if args.labels:
             labels = args.labels
         else:    
             labels = get_labels_by_knowledge_type(self.entity_groups, args.knowledge_type)
@@ -197,7 +198,7 @@ class ReciFineNER:
     def from_pretrained(
         cls,
         *,
-        model_name_or_path: str,
+        model_name_or_path: Optional[str] = None,
         dataset: str = "recifinegold",
         model: str = "bert",
         task_formulation: str = "knowledge_guided",
