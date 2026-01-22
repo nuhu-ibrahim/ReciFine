@@ -44,7 +44,7 @@ python3 scripts/train.py ...
 
 Training uses the layered configuration system:
 - `--dataset` loads configuration from the path **configs/datasets/\<dataset>/paper.yaml**
-- `--model` loads appropriate models from the path **configs/base_config/\<model>.yaml**
+- `--model` loads appropriate models **recipebert** or **reciperoberta**
 - `--task_formulation` tells whether the training is ``knowledge_augmented`` or ``traditional``
 - `--knowledge_type` loads knowledge type from the path **configs/knowledge_type_config/\<knowledge_type>.yaml** when 
   training is **knowledge-augmented**
@@ -58,7 +58,7 @@ curated knowledge.
 ```bash
 python scripts/train.py \
   --dataset recifinegold \
-  --model bert_base_uncased \
+  --model recipebert \
   --task_formulation traditional
 ```
 
@@ -72,7 +72,7 @@ entity type name) to the input and trains the model to extract entities for a si
 ```bash
 python scripts/train.py \
   --dataset recifinegold \
-  --model bert_base_uncased \
+  --model recipebert \
   --task_formulation knowledge_guided \
   --knowledge_type question
 ```
@@ -100,8 +100,7 @@ traditional training.
 ### Core configuration
 - `--dataset`: Dataset key (e.g., `ar`, `englishflowgraph`, `finer`, `foodbase`, `gk`, `recifinegold`, `tasteset1`, 
   and `tasteset2`)
-- `--model`: Base model config key (e.g., `bert_base_cased.yaml`, `bert_base_uncased`, `roberta_base` or 
-  `roberta-large`).
+- `--model`: Base model config key (i.e., `recipebert` or `reciperoberta`).
 
 - `--task_formulation`: Either;
     - `traditional`: (BIO-n tagging directly and at a time over the recipe text), or
@@ -144,7 +143,7 @@ Evaluation results (if `--do_eval`) are written to `eval_results.txt` in the out
 
 ## Notes on training other datasets
 
-To train any of the other supported datasets, follow its dataset setup guide first (links above). After preprocessing, the same `scripts/train.py` command works—just change `--dataset` and (optionally) `--model`, `--task_formulation`, and `--knowledge_type`.
+To train any of the other supported datasets, follow its dataset setup guide first (links above). After preprocessing, the same `scripts/train.py` command works when you update `--dataset` and (optionally) `--model`, `--task_formulation`, and `--knowledge_type`.
 
 ---
 

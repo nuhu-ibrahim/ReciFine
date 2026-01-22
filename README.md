@@ -28,7 +28,7 @@ We release both our gold-standard and large-scale datasets on Hugging Face:
 - **ReciFineGen (Gold Standard)**  
   [ReciFineGen Dataset on HugginFace](https://huggingface.co/datasets/nuhuibrahim/recifinegen)
 
-- Trained **BERT-base-uncased** and **RoBERTa-base** models for each of the 2 training formulations (traditional and knowledge-augmented) and the 5 knowledge-augmented types.
+- Trained **RecipeBERT** and **RecipeRoBERTa** models for each of the 2 training formulations (traditional and knowledge-augmented) and the 5 knowledge-augmented types.
 
 ReciFine constitutes the **largest and most semantically rich collection of annotated recipe entities currently available**.
 
@@ -43,14 +43,14 @@ All the datasets and the trained models are available in a [HugginFace Collectio
 ReciFine provides a lightweight inference wrapper for recipe NER. 
 
 ### Code Sample 1 (Knowledge-guided inference)
-Below is a code sample showing how to extract QUANTITY entities from a text using the model (bert_base_uncased) trained on the ReciFineGold dataset and using the knowledge-augmented and entity-specific formulation with **QUESTION** knowledge-type.
+Below is a code sample showing how to extract QUANTITY entities from a text using the recipebert model trained on the ReciFineGold dataset and using the knowledge-augmented and entity-specific formulation with **QUESTION** knowledge-type.
 ```python
 pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 
 from recifine.inference import RecifineNER
 
 ner = RecifineNER.from_pretrained(
-    model="bert_base_uncased",
+    model="recipebert",
     task_formulation="knowledge_guided",
     knowledge_type="question"
 )
@@ -70,14 +70,14 @@ for span in spans:
 TODO: add sample outputs
 
 ### Code Sample 2 (Traditional inference)
-Below shows code sample for extracting entities from text using the model (bert_base_uncased) trained on ReciFineGold dataset using the traditional (BIO-n) approach.
+Below shows code sample for extracting entities from text using the recipebert model trained on ReciFineGold dataset using the traditional (BIO-n) approach.
 ```python
 pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 
 from recifine.inference import RecifineNER
 
 ner = RecifineNER.from_pretrained(
-    model="bert_base_uncased",
+    model="recipebert",
     task_formulation="traditional",
 )
 
@@ -111,16 +111,12 @@ The list of supported dataset are in  [Supported Datasets](#supported-datasets)
 
 ---
 
-#### `model` (optional, default: `"bert_base_uncased"`)
+#### `model` (optional, default: `"recipebert"`)
 **Type:** `str`  
 
 List of supported models are:
-- bert_base_cased.yaml
-- bert_base_uncased.yaml
-- bert_large_cased.yaml
-- bert_large_uncased.yaml
-- roberta_base.yaml
-- roberta_large.yaml
+- recipebert
+- reciperoberta
 
 ---
 
@@ -153,8 +149,8 @@ Controls which type of knowledge prefix is appended to the input text when `tast
 - [GK.md](configs/datasets/gk/Gk.md)
 
 ---
-**IMPORTANT NOTE**: Only **ReciFineGold** (`bert_base_uncased`
-and `roberta_base` only) are supported automatically through HuggingFace. To use the other datasets and model types,
+**IMPORTANT NOTE**: Only **ReciFineGold** (`recipebert`
+and `reciperoberta` only) are supported automatically through HuggingFace. To use the other datasets and model types,
 you will need to train the models and provide the absolute link to the model weights through the 
 `model_name_or_path` parameter.
 

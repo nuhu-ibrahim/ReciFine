@@ -19,8 +19,8 @@ from .roberta_recipe_token import RobertaForTokenClassification
 
 
 MODEL_CLASSES = {
-    "bert": (BertConfig, BertForTokenClassification, BertTokenizer),
-    "roberta": (RobertaConfig, RobertaForTokenClassification, RobertaTokenizer)
+    "recipebert": (BertConfig, BertForTokenClassification, BertTokenizer),
+    "reciperoberta": (RobertaConfig, RobertaForTokenClassification, RobertaTokenizer)
 }
 
 

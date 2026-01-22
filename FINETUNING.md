@@ -44,7 +44,7 @@ python3 scripts/finetune.py ...
 
 Fine-tuning uses the layered configuration system:
 - `--dataset` loads configuration from the path **configs/datasets/\<dataset>/paper.yaml**
-- `--model` loads appropriate models from the path **configs/base_config/\<model>.yaml**
+- `--model` loads appropriate models **recipebert** or **reciperoberta**
 - `--model_name_or_path`the existing model **HF_MODEL_ID** or **LOCAL_CHECKPOINT_DIR**
 - `--task_formulation` tells whether the fine-tuning is ``knowledge_augmented`` or ``traditional``
 - `--knowledge_type` loads knowledge type from the path **configs/knowledge_type_config/\<knowledge_type>.yaml** when
@@ -59,7 +59,7 @@ curated knowledge.
 ```bash
 python scripts/finetune.py \
   --dataset recifinegold \
-  --model bert_base_uncased \
+  --model recipebert \
   --task_formulation traditional
 ```
 
@@ -73,7 +73,7 @@ entity type name) to the input and fine-tunes the model to extract entities for 
 ```bash
 python scripts/finetune.py \
   --dataset recifinegold \
-  --model bert_base_uncased \
+  --model recipebert \
   --task_formulation knowledge_guided \
   --knowledge_type question \
   --model_name_or_path <HF_MODEL_ID_OR_LOCAL_CHECKPOINT_DIR>
@@ -86,8 +86,7 @@ python scripts/finetune.py \
 ### Core configuration
 - `--dataset`: Dataset key (e.g., `ar`, `englishflowgraph`, `finer`, `foodbase`, `gk`, `recifinegold`, `tasteset1`,
   and `tasteset2`)
-- `--model`: Base model config key (e.g., `bert_base_cased.yaml`, `bert_base_uncased`, `roberta_base` or
-  `roberta-large`).
+- `--model`: Base model config key (i.e., `recipebert`, or `reciperoberta`).
 
 - `--task_formulation`: Either;
     - `traditional`: (BIO-n tagging directly and at a time over the recipe text), or

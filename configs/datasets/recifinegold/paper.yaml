@@ -27,33 +27,33 @@ per_gpu_eval_batch_size: 128
 num_train_epochs: 10
 
 model_registry:
-  bert_base_uncased:
+  recipebert:
     traditional:
-      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-trad"
+      hf_repo: "nuhuibrahim/recifinegold-recipebert-trad"
     question:
-      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-question"
+      hf_repo: "nuhuibrahim/recifinegold-recipebert-ka-question"
     entity_type:
-      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-entity-type"
+      hf_repo: "nuhuibrahim/recifinegold-recipebert-ka-entity-type"
     definition:
-      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-definition"
+      hf_repo: "nuhuibrahim/recifinegold-recipebert-ka-definition"
     example:
-      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-example"
+      hf_repo: "nuhuibrahim/recifinegold-recipebert-ka-example"
     all:
-      hf_repo: "nuhuibrahim/recifinegold-bert-base-uncased-ka-all"
+      hf_repo: "nuhuibrahim/recifinegold-recipebert-ka-all"
 
-  roberta_base:
+  reciperoberta:
     traditional:
-      hf_repo: "nuhuibrahim/recifinegold-roberta-base-trad"
+      hf_repo: "nuhuibrahim/recifinegold-reciperoberta-trad"
     question:
-      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-question"
+      hf_repo: "nuhuibrahim/recifinegold-reciperoberta-ka-question"
     entity_type:
-      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-entity-type"
+      hf_repo: "nuhuibrahim/recifinegold-reciperoberta-ka-entity-type"
     definition:
-      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-definition"
+      hf_repo: "nuhuibrahim/recifinegold-reciperoberta-ka-definition"
     example:
-      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-example"
+      hf_repo: "nuhuibrahim/recifinegold-reciperoberta-ka-example"
     all:
-      hf_repo: "nuhuibrahim/recifinegold-roberta-base-ka-all"
+      hf_repo: "nuhuibrahim/recifinegold-reciperoberta-ka-all"
 
 entity_groups:
   - name: FOOD

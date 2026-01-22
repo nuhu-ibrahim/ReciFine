@@ -80,7 +80,7 @@ class RecifineNER:
         self,
         *,
         dataset: str = "recifinegold",
-        model: str = "bert_base_uncased",
+        model: str = "recipebert",
         knowledge_type: str = "question",
         task_formulation: str = "knowledge_guided",
         model_name_or_path: Optional[str] = None,

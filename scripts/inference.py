@@ -26,7 +26,7 @@ def build_parser():
     p.add_argument("--dataset", type=str, default="recifinegold",
                    help="Dataset configuration key (e.g., recifinegold).")
 
-    p.add_argument("--model", type=str, default="bert_base_uncased",
+    p.add_argument("--model", type=str, default="recipebert",
                    help="Base model configuration key under configs/base_config.")
 
     p.add_argument("--task_formulation",
@@ -75,6 +75,9 @@ def build_parser():
 
     p.add_argument("--max_seq_length", type=int, default=256,
                    help="Maximum input sequence length.")
+
+    p.add_argument("--model_type", type=str, default=None,
+                   choices=["recipebert", "reciperoberta"], help="Model architecture key.")
 
     return p
 

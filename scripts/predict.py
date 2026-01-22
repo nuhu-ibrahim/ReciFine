@@ -27,7 +27,7 @@ def build_parser():
                    help="Directory containing trained model and for saving outputs.")
 
     p.add_argument("--model_type", type=str, default=None,
-                   choices=["bert", "roberta"], help="Model architecture key.")
+                   choices=["recipebert", "reciperoberta"], help="Model architecture key.")
 
     p.add_argument("--model_name_or_path", type=str, default=None,
                    help="HF model name or local checkpoint path.")

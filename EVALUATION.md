@@ -45,7 +45,7 @@ python3 scripts/evaluate.py ...
 
 Evaluation uses the layered configuration system:
 - `--dataset` loads configuration from the path **configs/datasets/\<dataset>/paper.yaml**
-- `--model` loads appropriate models from the path **configs/base_config/\<model>.yaml**
+- `--model` loads appropriate models **recipebert** or **reciperoberta**
 - `--task_formulation` tells whether the model to evaluated was trained using ``knowledge_augmented`` or 
   ``traditional``
 - `--knowledge_type` loads knowledge type from the path **configs/knowledge_type_config/\<knowledge_type>.yaml** when
@@ -64,7 +64,7 @@ using any curated knowledge.
 ```bash
 python scripts/evaluate.py \
   --dataset recifinegold \
-  --model bert_base_uncased \
+  --model recipebert \
   --task_formulation traditional
 ```
 
@@ -79,7 +79,7 @@ time.
 ```bash
 python scripts/evaluate.py \
   --dataset recifinegold \
-  --model bert_base_uncased \
+  --model recipebert \
   --task_formulation knowledge_guided \
   --knowledge_type question
 ```
@@ -108,8 +108,7 @@ traditional evaluation.
 - `--dataset`: Dataset key (e.g., `ar`, `englishflowgraph`, `finer`, `foodbase`, `gk`, `recifinegold`, `tasteset1`,
   and `tasteset2`)
 
-- `--model`: Base model config key (e.g., `bert_base_cased.yaml`, `bert_base_uncased`, `roberta_base` or
-  `roberta-large`).
+- `--model`: Base model config key (i.e., `recipebert` or `reciperoberta`).
 
 - `--task_formulation`: Either;
     - `traditional`: (BIO-n tagging directly and at a time over the recipe text), or
