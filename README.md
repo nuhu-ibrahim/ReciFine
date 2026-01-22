@@ -47,7 +47,7 @@ Below is a code sample showing how to extract QUANTITY entities from a text usin
 ```python
 pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 
-from recifine.inference import ReciFineNER
+from recifine.inferencing.inference import ReciFineNER
 
 ner = ReciFineNER.from_pretrained(
     model="recipebert",
@@ -74,7 +74,7 @@ Below shows code sample for extracting entities from text using the recipebert m
 ```python
 pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 
-from recifine.inference import ReciFineNER
+from recifine.inferencing.inference import ReciFineNER
 
 ner = ReciFineNER.from_pretrained(
     model="recipebert",
