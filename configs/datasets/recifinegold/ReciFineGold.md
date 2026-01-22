@@ -1,4 +1,4 @@
-# Recifine Gold Dataset
+# ReciFine Gold Dataset
 
 ## Overview
 ReciFineGold is a finely annotated recipe dataset designed to support research in **controllable recipe generation, structured recipe understanding, and information extraction from procedural cooking text**. The dataset contains step-by-step cooking instructions drawn from 500 real-world recipes, each **manually annotated** with span-level semantic labels that capture the key components of culinary actions, ingredients, tools, and states.
@@ -90,7 +90,7 @@ Notes:
 ---
 
 ## Citation
-If you use the RecifineGold dataset or the knowledge-augmented and entity-type specific architecture, please cite our papers:
+If you use the RecifineGold dataset or the knowledge-augmented and entity type-specific architecture, please cite our papers:
 
 ```
 @inproceedings{

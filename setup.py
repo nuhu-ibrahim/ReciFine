@@ -32,7 +32,7 @@ def read_requirements(path: str) -> list[str]:
 setup(
     name="ReciFine",
     version="1.0",
-    description="The ReciFine Library provides code, training scripts, inference wrappers, and documentation for recipe-focused Named Entity Recognition (NER) using traditional BIO tagging and knowledge-augmented & entity-specific token classification.",
+    description="The ReciFine Library provides code, training scripts, inference wrappers, and documentation for recipe-focused Named Entity Recognition (NER) using traditional BIO tagging and knowledge-augmented & entity type-specific token classification.",
     author="Nuhu Ibrahim",
     author_email="nuhu.ibrahim@manchester.ac.uk",
     packages=find_packages(where="src", exclude=("tests", "test",)),

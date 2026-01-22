@@ -1,5 +1,5 @@
-# Prediction Using Recifine Library
-The ReciFine library implements the knowledge-augmented and entity-specific token classification approach introduced in:
+# Prediction Using ReciFine Library
+The ReciFine library implements the knowledge-augmented and entity type-specific token classification approach introduced in:
 
 ```
 @inproceedings{
@@ -11,7 +11,7 @@ The ReciFine library implements the knowledge-augmented and entity-specific toke
 ```
 
 Unlike traditional BIO-n NER, where all entity types are predicted jointly from raw text, this approach reformulates
-NER as an entity-type specific task. The model is guided to identify instances of one entity-type at a time by prepending
+NER as an entity type-specific task. The model is guided to identify instances of one entity type at a time by prepending
 a curated knowledge prefix to the input text. This library also supports the traditional BIO-n NER.
 
 ---
@@ -22,7 +22,7 @@ a curated knowledge prefix to the input text. This library also supports the tra
 
 ```bash
 git clone https://github.com/nuhu-ibrahim/ReciFine
-cd Recifine
+cd ReciFine
 pip install -e .
 ```
 
@@ -111,7 +111,7 @@ traditional prediction.
 
 - `--task_formulation`: Either;
     - `traditional`: (BIO-n tagging directly and at a time over the recipe text), or
-    - `knowledge_guided`: (knowledge prefix + entity-specific extraction).
+    - `knowledge_guided`: (knowledge prefix + entity type-specific extraction).
 
 - `--knowledge_type`: One of `question`, `entity_type`, `definition`, `example`, `all`. This is for
   `knowledge_guided` evaluation only.

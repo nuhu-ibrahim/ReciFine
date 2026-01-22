@@ -75,7 +75,7 @@ def _index_entity_groups(entity_groups: List[Dict[str, Any]]) -> Dict[str, Dict[
     return idx
 
 
-class RecifineNER:
+class ReciFineNER:
     def __init__(
         self,
         *,
@@ -208,7 +208,7 @@ class RecifineNER:
         seed: int = 42,
         no_cuda: bool = False,
         **kwargs: Any,
-    ) -> "RecifineNER":
+    ) -> "ReciFineNER":
         if kwargs:
             logger.warning("Ignoring unexpected kwargs in from_pretrained: %s", sorted(kwargs.keys()))
         return cls(

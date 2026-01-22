@@ -9,7 +9,7 @@ from torch.nn import CrossEntropyLoss
 
 from recifine.config import apply_layered_yaml_to_args
 from recifine.utils.require_params import _require
-from recifine.inferencing.inference import RecifineNER
+from recifine.inferencing.inference import ReciFineNER
 from recifine.utils.seed import set_seed
 
 import json
@@ -85,7 +85,7 @@ def build_parser():
 def main():
     args = build_parser().parse_args()
 
-    ner = RecifineNER(
+    ner = ReciFineNER(
         dataset=args.dataset,
         model=args.model,
         task_formulation=args.task_formulation,

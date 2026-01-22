@@ -9,7 +9,7 @@ It provides:
 - **ReciFine**, the largest and richest annotated recipe dataset to date, produced by scaling annotation to over 2.2 million recipes.
 - **ReciFineGen**, the first human-annotated evaluation dataset of automatically generated recipes, designed to support benchmarking for recipe generation and adaptation tasks.
 
-ReciFine introduces **knowledge-augmented and entity-specific token classification**, enabling models to reason explicitly about fine-grained recipe entities.
+ReciFine introduces **knowledge-augmented and entity type-specific token classification**, enabling models to reason explicitly about fine-grained recipe entities.
 
 ---
 
@@ -38,18 +38,18 @@ All the datasets and the trained models are available in a [HugginFace Collectio
 
 ---
 
-## Quick Start: Inference with `RecifineNER`
+## Quick Start: Inference with `ReciFineNER`
 
 ReciFine provides a lightweight inference wrapper for recipe NER. 
 
 ### Code Sample 1 (Knowledge-guided inference)
-Below is a code sample showing how to extract QUANTITY entities from a text using the recipebert model trained on the ReciFineGold dataset and using the knowledge-augmented and entity-specific formulation with **QUESTION** knowledge-type.
+Below is a code sample showing how to extract QUANTITY entities from a text using the recipebert model trained on the ReciFineGold dataset and using the knowledge-augmented and entity type-specific formulation with **QUESTION** knowledge-type.
 ```python
 pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 
-from recifine.inference import RecifineNER
+from recifine.inference import ReciFineNER
 
-ner = RecifineNER.from_pretrained(
+ner = ReciFineNER.from_pretrained(
     model="recipebert",
     task_formulation="knowledge_guided",
     knowledge_type="question"
@@ -74,9 +74,9 @@ Below shows code sample for extracting entities from text using the recipebert m
 ```python
 pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 
-from recifine.inference import RecifineNER
+from recifine.inference import ReciFineNER
 
-ner = RecifineNER.from_pretrained(
+ner = ReciFineNER.from_pretrained(
     model="recipebert",
     task_formulation="traditional",
 )
@@ -157,7 +157,7 @@ you will need to train the models and provide the absolute link to the model wei
 ---
 ## Hardware Requirements
 
-**RecifineNER** has a low hardware requirement. For fast inference speed, a GPU should be used, but this is not a 
+**ReciFineNER** has a low hardware requirement. For fast inference speed, a GPU should be used, but this is not a 
 strict requirement.
 
 ---
@@ -176,8 +176,8 @@ For detailed, step-by-step guidance, please refer to the following documentation
 
 ## Research Papers
 
-### Knowledge-Augmented and Entity-Specific Token Classification
-The knowledge-augmented and entity-specific token classification model architecture is described in the paper 
+### Knowledge-Augmented and Entity Type-Specific Token Classification
+The knowledge-augmented and entity type-specific token classification model architecture is described in the paper 
 **Knowledge Augmentation Enhances Token Classification for Recipe Understanding**.
 
 ```bibtex

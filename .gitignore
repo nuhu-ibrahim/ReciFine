@@ -9,7 +9,7 @@
 # Ignore the execution folders
 **/runs/
 
-**/Recifine.egg-info
+**/ReciFine.egg-info
 
 # Ignore macOS system files
 .DS_Store
