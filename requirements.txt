@@ -1,7 +1,11 @@
-numpy==1.24.3
-torch==2.0.1
-jsonlines==3.1.0
-seqeval==1.2.2
-tensorboardX==2.6
-tqdm==4.65.0
-transformers==4.31.0
+numpy>=1.23.5; python_version < "3.12"
+numpy>=1.26.0; python_version >= "3.12"
+
+torch>=2.0.1; python_version < "3.12"
+torch>=2.1.0; python_version >= "3.12"
+
+transformers>=4.31.0
+jsonlines>=3.1.0
+seqeval>=1.2.2
+tensorboardX>=2.6
+tqdm>=4.65.0
