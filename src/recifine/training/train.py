@@ -11,7 +11,9 @@ from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm, trange
 
-from transformers import AdamW, get_linear_schedule_with_warmup
+from torch.optim import AdamW
+
+from transformers import get_linear_schedule_with_warmup
 
 from .eval import evaluate
 from .dataset import load_and_cache_examples
