@@ -29,14 +29,6 @@ from numpy import random
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Span:
-    start: int
-    end: int
-    label: str
-    text: str
-
-
 def _index_entity_groups(entity_groups: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     idx: Dict[str, Dict[str, Any]] = {}
     for eg in entity_groups:

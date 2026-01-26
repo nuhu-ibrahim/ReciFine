@@ -40,6 +40,5 @@ setup(
     install_requires=read_requirements("requirements.txt"),
     include_package_data=True,          
     data_files=data_files,              
-    scripts=scripts,                    
-    # python_requires=">=3.10,<3.13",     
+    scripts=scripts,                         
 )

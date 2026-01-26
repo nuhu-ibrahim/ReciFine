@@ -139,14 +139,14 @@ Controls which type of knowledge prefix is appended to the input text when `tast
 ---
 
 ## Supported Datasets
-- [ReciFineGold.md](configs/datasets/recifinegold/ReciFineGold.md)
-- [EnglishRecipeFlowGraph.md](configs/datasets/englishflowgraph/EnglishFlowGraph.md)
-- [FINER.md](configs/datasets/finer/Finer.md)
-- [FoodBase.md](configs/datasets/foodbase/Foodbase.md)
-- [TASTEset-1.md](configs/datasets/tasteset1/Tasteset1.md)
-- [TASTEset-2.md](configs/datasets/tasteset2/Tasteset2.md)
-- [AR.md](configs/datasets/ar/AR.md)
-- [GK.md](configs/datasets/gk/Gk.md)
+- [ReciFineGold.md](src/recifine/configs/datasets/recifinegold/ReciFineGold.md)
+- [EnglishRecipeFlowGraph.md](src/recifine/configs/datasets/englishflowgraph/EnglishFlowGraph.md)
+- [FINER.md](src/recifine/configs/datasets/finer/Finer.md)
+- [FoodBase.md](src/recifine/configs/datasets/foodbase/Foodbase.md)
+- [TASTEset-1.md](src/recifine/configs/datasets/tasteset1/Tasteset1.md)
+- [TASTEset-2.md](src/recifine/configs/datasets/tasteset2/Tasteset2.md)
+- [AR.md](src/recifine/configs/datasets/ar/AR.md)
+- [GK.md](src/recifine/configs/datasets/gk/Gk.md)
 
 ---
 **IMPORTANT NOTE**: Only **ReciFineGold** (`recipebert`
