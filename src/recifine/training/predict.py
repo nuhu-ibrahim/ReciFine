@@ -10,91 +10,11 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 
-from .dataset import load_and_cache_examples
-from ..data.kaner import read_examples_from_file
+from recifine.training.dataset import load_and_cache_examples
+from recifine.data.kaner import read_examples_from_file
+from recifine.data.transform import normalise_traditional_prediction, normalise_knowledge_prediction
 
 logger = logging.getLogger(__name__)
-
-def normalise_traditional_prediction(
-    tokens: List[str],
-    labels: List[str],
-) -> Dict[str, List[str]]:
-    out: Dict[str, List[str]] = {}
-    current_type: Optional[str] = None
-    current_tokens: List[str] = []
-
-    def flush():
-        nonlocal current_type, current_tokens
-        if current_type and current_tokens:
-            text = " ".join(current_tokens)
-            out.setdefault(current_type, []).append(text)
-        current_type = None
-        current_tokens = []
-
-    for tok, lab in zip(tokens, labels):
-        if lab == "O" or not lab:
-            flush()
-            continue
-
-        if lab.startswith("B-"):
-            flush()
-            current_type = lab[2:]
-            current_tokens = [tok]
-            continue
-
-        if lab.startswith("I-"):
-            typ = lab[2:]
-            if current_type == typ and current_tokens:
-                current_tokens.append(tok)
-            else:
-                flush()
-            continue
-
-        flush()
-
-    flush()
-    return out
-
-
-def normalise_knowledge_prediction(
-    input_words: List[str],
-    predicted_labels: List[str],
-    entity_type: str,
-    separator: str = "::",
-) -> Dict[str, List[str]]:
-    try:
-        start = input_words.index(separator) + 1
-    except ValueError:
-        return {"ANS": []}
-
-    tokens = input_words[start:]
-    labels = predicted_labels[start:]
-
-    out: List[str] = []
-    current: List[str] = []
-
-    def flush():
-        nonlocal current
-        if current:
-            text = " ".join(current)
-            if text:
-                out.append(text)
-        current = []
-
-    for tok, lab in zip(tokens, labels):
-        if lab == "B-ANS":
-            flush()
-            current = [tok]
-        elif lab == "I-ANS":
-            if current:
-                current.append(tok)
-            else:
-                current = [tok]
-        else:
-            flush()
-
-    flush()
-    return {entity_type.upper(): out}
 
 
 def predict_without_evaluate(
@@ -132,11 +52,12 @@ def predict_without_evaluate(
                 inputs = {
                     "input_ids": batch[0],
                     "attention_mask": batch[1],
-                    "token_type_ids": batch[2] if args.model_type in ["bert", "xlnet"] else None,
+                    "token_type_ids": batch[2] if args.model_type in ["recipebert", "xlnet"] else None,
                     "labels": batch[3],
                 }
                 outputs = model(**inputs)
                 logits = outputs[1]
+
 
             preds = torch.argmax(logits, axis=2).detach().cpu().numpy()
             label_ids = inputs["labels"].detach().cpu().numpy()

@@ -111,6 +111,7 @@ def main():
         dataset_attr="dataset",
         knowledge_type_attr="knowledge_type",
         extra_attr="config",
+        config_type="evaluation",
     )
 
     # Knowledge type is traditional whenever the task formulation is traditional
@@ -123,9 +124,8 @@ def main():
         # Validate AFTER merge for knowledge augmented tasks
         _require(args, ["data_dir", "model_type", "model_name_or_path", "output_dir"])
 
-
-    # Add the knowledge type to output directory
-    args.output_dir = os.path.join(args.output_dir, args.knowledge_type)
+    if not (os.path.exists(args.output_dir) and os.listdir(args.output_dir)):
+        os.makedirs(args.output_dir, exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
     args.device = device
@@ -146,13 +146,14 @@ def main():
         do_lower_case=args.do_lower_case,
     )
     model.to(args.device)
+    logger.debug("Evaluation parameters %s", args)
 
     evaluate_data_dirs = []
     if args.dataset_to_evaluate:
         evaluate_data_dirs = args.dataset_to_evaluate
 
     base_data_dir = args.data_dir
-    for data_dir in tqdm(evaluate_data_dirs, desc="Data_Dir:"):
+    for data_dir in tqdm(evaluate_data_dirs, desc="Data_Directory:"):
         dataset_test = data_dir
 
         data_dir=os.path.join(base_data_dir, data_dir)

@@ -36,7 +36,7 @@ class DataProcessor:
     def get_dev_examples(self, data_dir: str):
         raise NotImplementedError()
 
-    def select_knowledge(self, eg: Dict[str, Any], knowledge_type: str):
+    def get_inf_examples(self, data: Dict[str, Any]):
         raise NotImplementedError()
 
     def get_labels(self):
@@ -114,12 +114,17 @@ class KANerProcessor(DataProcessor):
             self._read_jsonlines(os.path.join(data_dir, "test.jsonl")), "test", knowledge_type
         )
 
+    def get_inf_examples(self, data: List[Dict[str, Any]], knowledge_type: str = "question") -> List[InputExample]:
+        return self._create_examples(
+            data, "test", knowledge_type
+        )
+
     def get_labels(self) -> List[str]:
         return ["B-ANS", "I-ANS", "O"]
 
     def _create_examples(self, lines: List[Dict[str, Any]], set_type: str, knowledge_type: str = "question") -> List[InputExample]:
         examples: List[InputExample] = []
-        for _, js in tqdm(list(enumerate(lines)), desc="Reading JsonFile"):
+        for _, js in tqdm(list(enumerate(lines)), desc="Reading data"):
             guid = js["qid"]
             txknowledge_type = ""
 
@@ -166,43 +171,6 @@ class KANerProcessor(DataProcessor):
         return examples
 
 
-    def select_knowledge(self, eg: Dict[str, Any], knowledge_type: str = "question") -> str:
-        txknowledge_type = ""
-
-        if knowledge_type == "traditional":
-            return None
-
-        if knowledge_type == "all":
-            exmpls = [tup[0] for tup in eg["example"]]
-            extxt = " ".join(exmpls)
-            txknowledge_type = eg["question"] + " : " + eg["definition"] + " : " + extxt
-
-        elif knowledge_type == "what_type_q":
-            txknowledge_type = "what " + eg["entity_type"] + " ? "
-
-        elif knowledge_type == "what_type":
-            txknowledge_type = "what " + eg["entity_type"]
-
-        elif knowledge_type == "what":
-            txknowledge_type = "what "
-
-        else:
-            txknowledge_type = eg[knowledge_type]
-
-        if "definiton" in knowledge_type:
-            txknowledge_type = eg["entity_type"] + " : " + eg[knowledge_type]
-
-        if knowledge_type == "example":
-            exmpls = [tup[0] for tup in txknowledge_type]
-            extxt = " ".join(exmpls)
-            txknowledge_type = eg["entity_type"] + " : " + extxt
-
-        if txknowledge_type == "" and knowledge_type not in ("what"):
-            raise ValueError(f"Unknown knowledge_type: {knowledge_type}")
-
-        return txknowledge_type + " ::"
-
-
 def read_examples_from_file(data_dir: str, mode: str, knowledge_type: str = "question") -> List[InputExample]:
     processor = KANerProcessor()
     mode_examples = {
@@ -213,11 +181,7 @@ def read_examples_from_file(data_dir: str, mode: str, knowledge_type: str = "que
     return mode_examples[mode](data_dir, knowledge_type)
 
 
-def build_model_inference_input(text: str, eg: Dict[str, Any], knowledge_type: str) -> str:
+def read_example_from_data(data: List[Dict[str, Any]], knowledge_type: str = "question") -> List[InputExample]:
     processor = KANerProcessor()
 
-    knowledge = processor.select_knowledge(eg, knowledge_type)
-    if not knowledge or knowledge == "":
-        return text, knowledge
-    
-    return f"{knowledge} {text}", knowledge
+    return processor.get_inf_examples(data, knowledge_type)

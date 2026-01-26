@@ -101,7 +101,7 @@ def train(
             inputs = {
                 "input_ids": batch[0],
                 "attention_mask": batch[1],
-                "token_type_ids": batch[2] if args.model_type in ["bert", "xlnet"] else None,
+                "token_type_ids": batch[2] if args.model_type in ["recipebert", "xlnet"] else None,
                 "labels": batch[3],
             }
             outputs = model(**inputs)

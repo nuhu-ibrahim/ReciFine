@@ -60,3 +60,4 @@ class BertRecipeTokenClassifier(BertForTokenClassification):
             outputs = (loss,) + outputs + (labels,)
 
         return outputs
+        

@@ -1,20 +1,30 @@
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 import torch
+from torch.nn import CrossEntropyLoss
+from torch.utils.data import DataLoader, SequentialSampler
+from torch.utils.data.distributed import DistributedSampler
 
 from recifine.data.labels import get_labels_by_knowledge_type
-from recifine.models.hf_wrappers import load_model_tokenizer_fast
+from recifine.models.hf_wrappers import load_model_tokenizer
 
 from recifine.utils.require_params import _require
 from recifine.config import apply_layered_yaml_to_args
 from recifine.utils.seed import set_seed
-from recifine.data.kaner import build_model_inference_input
+
+from recifine.data.kaner import read_example_from_data
+
+from recifine.training.dataset import load_and_cache_examples_from_list
+from recifine.data.transform import normalise_traditional_prediction, normalise_knowledge_prediction
+
+from tqdm import tqdm, trange
+
+from numpy import random
 
 logger = logging.getLogger(__name__)
 
@@ -25,45 +35,6 @@ class Span:
     end: int
     label: str
     text: str
-
-
-def _bio_to_spans(text: str, offsets: List[Tuple[int, int]], labels: List[str]) -> List[Span]:
-    spans: List[Span] = []
-    cur_start: Optional[int] = None
-    cur_end: Optional[int] = None
-    cur_type: Optional[str] = None
-
-    def _flush():
-        nonlocal cur_start, cur_end, cur_type
-        if cur_start is not None and cur_end is not None and cur_type:
-            spans.append(Span(start=cur_start, end=cur_end, label=cur_type, text=text[cur_start:cur_end]))
-        cur_start, cur_end, cur_type = None, None, None
-
-    for (s, e), lab in zip(offsets, labels):
-        if s == e:
-            continue
-
-        if lab == "O" or lab is None:
-            _flush()
-            continue
-
-        if lab.startswith("B-"):
-            _flush()
-            cur_type = lab[2:]
-            cur_start, cur_end = s, e
-        elif lab.startswith("I-"):
-            t = lab[2:]
-            if cur_type == t and cur_start is not None:
-                cur_end = e
-            else:
-                _flush()
-                cur_type = t
-                cur_start, cur_end = s, e
-        else:
-            _flush()
-
-    _flush()
-    return spans
 
 
 def _index_entity_groups(entity_groups: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
@@ -87,6 +58,7 @@ class ReciFineNER:
         config: Optional[List[str] | str] = None,
         device: Optional[str] = None,
         max_seq_length: int = 256,
+        per_gpu_inf_batch_size: int = 256,
         seed: int = 42,
         no_cuda: bool = False
     ) -> None:
@@ -99,6 +71,7 @@ class ReciFineNER:
             config=config,
             cache_dir="",
             max_seq_length=max_seq_length,
+            per_gpu_inf_batch_size=per_gpu_inf_batch_size,
             seed=seed,
             no_cuda=no_cuda,
             local_rank=-1,
@@ -114,7 +87,7 @@ class ReciFineNER:
             dataset_attr="dataset",
             knowledge_type_attr="knowledge_type",
             extra_attr="config",
-            config_type="prediction",
+            config_type="inference",
         )
 
         if args.entity_groups:
@@ -122,77 +95,7 @@ class ReciFineNER:
         else:
             _require(args, ["model_name_or_path", "labels",])
 
-        # Setup CUDA / distributed (exact semantics)
-        if args.local_rank == -1 or args.no_cuda:
-            device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
-            args.n_gpu = torch.cuda.device_count()
-        else:
-            torch.cuda.set_device(args.local_rank)
-            device = torch.device("cuda", args.local_rank)
-            torch.distributed.init_process_group(backend="nccl")
-            args.n_gpu = 1
-
-        args.device = device
-
-        logging.basicConfig(
-            format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-            datefmt="%m/%d/%Y %H:%M:%S",
-            level=logging.INFO if args.local_rank in [-1, 0] else logging.WARN,
-        )
-        logger.warning(
-            "Process rank: %s, device: %s, n_gpu: %s, distributed training: %s",
-            args.local_rank,
-            device,
-            args.n_gpu,
-            bool(args.local_rank != -1)
-        )
-
         self.args = args
-        self.max_seq_length = args.max_seq_length
-        self.device = args.device
-        self.n_gpu = args.n_gpu
-
-        set_seed(args.seed, args.n_gpu)
-
-        self.entity_groups: List[Dict[str, Any]] = list(args.entity_groups)
-        self.entity_group_index = _index_entity_groups(self.entity_groups)
-
-        logger.info("Loading model/tokenizer from: %s", args.model_name_or_path)
-
-        labels = []
-        if args.labels:
-            labels = args.labels
-        else:    
-            labels = get_labels_by_knowledge_type(self.entity_groups, args.knowledge_type)
-
-        num_labels = len(labels)
-
-        _, self.tokenizer, self.model = load_model_tokenizer_fast(
-            model_type=args.model_type,
-            model_name_or_path=args.model_name_or_path,
-            num_labels=num_labels,
-            config_name=args.config_name,
-            tokenizer_name=args.tokenizer_name,
-            do_lower_case=args.do_lower_case,
-        )
-
-        # Move model to device and set eval mode
-        self.model.to(self.device)
-        self.model.eval()
-
-        # Build id2label map
-        cfg = self.model.config
-
-        self.id2label: Dict[int, str] = (
-            {int(k): v for k, v in cfg.id2label.items()}
-            if getattr(cfg, "id2label", None)
-            else {}
-        )
-
-        if not self.id2label:
-            raise ValueError(
-                "Loaded model has no id2label. Ensure it is a token classification checkpoint."
-            )
 
     @classmethod
     def from_pretrained(
@@ -200,7 +103,7 @@ class ReciFineNER:
         *,
         model_name_or_path: Optional[str] = None,
         dataset: str = "recifinegold",
-        model: str = "bert",
+        model: str = "recipebert",
         task_formulation: str = "knowledge_guided",
         knowledge_type: str = "question",
         config: Optional[List[str] | str] = None,
@@ -231,14 +134,19 @@ class ReciFineNER:
         *,
         entity_type: Optional[str] = None,
         return_tokens: bool = False,
-    ) -> List[Span] | Dict[str, Any]:
+    ):
+
+        args = self.args
 
         # validate that text is provided
         if not isinstance(text, str) or not text.strip():
             raise ValueError("Text to predict must be a non-empty string")
 
-        kt = self.args.knowledge_type
-        tf = self.args.task_formulation
+        kt = args.knowledge_type
+        tf = args.task_formulation
+
+        args.entity_groups: List[Dict[str, Any]] = list(args.entity_groups)
+        args.entity_group_index = _index_entity_groups(args.entity_groups)
 
         needs_group = (kt != "traditional")
         eg = {}
@@ -248,57 +156,104 @@ class ReciFineNER:
                     "entity_type is required for knowledge-guided inference. "
                     "Example: process_text(text, entity_type='FOOD' ...)"
                 )
-            eg = self.entity_group_index.get(entity_type)
+            eg = args.entity_group_index.get(entity_type)
             if eg is None:
-                examples = sorted(list(self.entity_group_index.keys()))[:20]
+                examples = sorted(list(args.entity_group_index.keys()))[:20]
                 raise ValueError(f"Unknown entity_type='{entity_type}'. Available (examples): {examples} ...")
 
-        model_input, knowledge = build_model_inference_input(text, eg, kt)
 
-        enc = self.tokenizer(
-            model_input,
-            return_offsets_mapping=True,
-            truncation=True,
-            max_length=self.max_seq_length,
-            return_tensors="pt",
+        if not args.labels:
+            args.labels = get_labels_by_knowledge_type(args.entity_groups, args.knowledge_type)
+
+
+        device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+        args.device = device
+        args.n_gpu = torch.cuda.device_count() if device.type == "cuda" else 0
+
+        logging.basicConfig(level=logging.INFO)
+        set_seed(args.seed, args.n_gpu)
+
+        pad_token_label_id = CrossEntropyLoss().ignore_index
+
+        _, tokenizer, model = load_model_tokenizer(
+            model_type=args.model_type,
+            model_name_or_path=args.model_name_or_path,
+            num_labels=len(args.labels),
+            config_name=args.config_name,
+            tokenizer_name=args.tokenizer_name,
+            do_lower_case=args.do_lower_case,
         )
+        model.to(args.device)
+        model.eval()
 
-        offsets = enc.pop("offset_mapping")[0].tolist()
-        enc = {k: v.to(self.device) for k, v in enc.items()}
+        logging.basicConfig(level=logging.INFO)
+        set_seed(args.seed, args.n_gpu)
 
-        with torch.no_grad():
-            out = self.model(**enc)
-            pred_ids = out.logits.argmax(dim=-1)[0].tolist()
+        inference_batch_size = args.per_gpu_inf_batch_size * max(1, self.args.n_gpu)
+        label_map = {i: label for i, label in enumerate(args.labels)}
 
-        labels = [self.id2label.get(i, "O") for i in pred_ids]
+        # get corresponding entity group
+        entity_group = args.entity_group_index.get(entity_type)
 
-        shift = len(knowledge) + 1 if knowledge else 0
+        # prepare inference data
+        inf_data = [
+            {
+                "qid": f"{random.randint(1000000)}", 
+                "text": f"{text}", 
+                "entity_type": f"{entity_group.get('type')}", 
+                "entity_group": f"{entity_group.get('group')}", 
+                "group_definition": f"{entity_group.get('group_definition')}", 
+                "definition": f"{entity_group.get('definition')}", 
+                "example": f"{entity_group.get('examples')}", 
+                "question": f"{entity_group.get('question')}",
+                "answer": [],
+            },
+        ]
 
-        spans_in_model_input = _bio_to_spans(model_input, offsets, labels)
+        examples = read_example_from_data(inf_data, args.knowledge_type)
+        eval_dataset = load_and_cache_examples_from_list(args, tokenizer, args.labels, pad_token_label_id, inf_data, "inf")
 
-        spans: List[Span] = []
-        for s in spans_in_model_input:
-            if s.end <= shift:
-                continue
+        eval_sampler = SequentialSampler(eval_dataset) if self.args.local_rank == -1 else DistributedSampler(eval_dataset)
+        eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=inference_batch_size)
 
-            new_start = max(0, s.start - shift)
-            new_end = max(0, s.end - shift)
+        logger.info("***** Running inference *****")
+        logger.debug("  Num examples = %d", len(eval_dataset))
+        logger.debug("  Batch size = %d", inference_batch_size)
 
-            new_start = min(new_start, len(text))
-            new_end = min(new_end, len(text))
-            if new_end <= new_start:
-                continue
+        example_idx = 0
+        predictions = []
+        for batch in tqdm(eval_dataloader, ascii=True, desc="Inferencing"):
+            batch = tuple(t.to(args.device) for t in batch)
 
-            spans.append(Span(start=new_start, end=new_end, label=s.label, text=text[new_start:new_end]))
+            with torch.no_grad():
+                inputs = {
+                    "input_ids": batch[0],
+                    "attention_mask": batch[1],
+                    "token_type_ids": batch[2] if args.model_type in ["recipebert", "xlnet"] else None,
+                    "labels": batch[3],
+                }
+                outputs = model(**inputs)
+                logits = outputs[1]
 
-        if not return_tokens:
-            return spans
+            preds = torch.argmax(logits, axis=2).detach().cpu().numpy()
+            label_ids = inputs["labels"].detach().cpu().numpy()
 
-        toks = self.tokenizer.convert_ids_to_tokens(enc["input_ids"][0].tolist())
-        return {
-            "model_input": model_input,
-            "tokens": toks,
-            "offsets": offsets,
-            "bio_tags": labels,
-            "spans": spans,
-        }
+            for i in range(preds.shape[0]):
+                example = examples[example_idx]
+
+                entity_type = example.orig_row.get("entity_type")
+
+                pred_labels = [
+                    label_map[preds[i][j]]
+                    for j in range(len(preds[i]))
+                    if label_ids[i][j] != pad_token_label_id
+                ]
+
+                if args.knowledge_type == "traditional":
+                    answers = normalise_traditional_prediction(example.words, pred_labels)
+                else:
+                    answers = normalise_knowledge_prediction(example.words, pred_labels, entity_type)
+
+                predictions.append({"answer": answers, "words_list": text.split(" "), "pred_labels": pred_labels[-len(text.split(" ")):],})
+
+        return predictions

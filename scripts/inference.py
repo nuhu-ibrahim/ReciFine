@@ -1,16 +1,9 @@
 from __future__ import annotations
 
 import argparse
-import glob
 import logging
-import os
-import torch
-from torch.nn import CrossEntropyLoss
 
-from recifine.config import apply_layered_yaml_to_args
-from recifine.utils.require_params import _require
 from recifine.inferencing.inference import ReciFineNER
-from recifine.utils.seed import set_seed
 
 import json
 
@@ -58,6 +51,9 @@ def build_parser():
     p.add_argument("--seed", type=int, default=42,
                    help="Random seed for reproducibility.")
 
+    p.add_argument("--per_gpu_inf_batch_size", type=int, default=48,
+                   help="Inference batch size per GPU/CPU.")
+
     p.add_argument("--do_lower_case", action="store_true", default=None,
                    help="Whether to lowercase text before tokenization.")
 
@@ -96,13 +92,7 @@ def main():
     
     out = ner.process_text(args.text, entity_type=args.entity_type, return_tokens=args.return_tokens)
 
-    if isinstance(out, list):
-        logger.info(json.dumps([asdict(s) for s in out], ensure_ascii=False, indent=2))
-    else:
-        out = dict(out)
-        out["spans"] = [asdict(s) for s in out["spans"]]
-        logger.info(json.dumps(out, ensure_ascii=False, indent=2))
-
+    logger.info(out)
 
 if __name__ == "__main__":
     main()
