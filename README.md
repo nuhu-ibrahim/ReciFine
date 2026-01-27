@@ -12,6 +12,10 @@ It provides:
 ReciFine introduces **knowledge-augmented and entity type-specific token classification**, enabling models to reason explicitly about fine-grained recipe entities.
 
 ---
+## Notebook 
+Here is a Google Colab Notebook that contains written implementation for quick entity extraction with ReciFine Library: [ReciFine Colab Notebook](https://colab.research.google.com/drive/1CatH2YOhnOWf-VglprEgxONWRkrXRBXo?usp=sharing).
+
+---
 
 ## Datasets
 
