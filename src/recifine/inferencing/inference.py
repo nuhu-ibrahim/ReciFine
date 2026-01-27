@@ -67,7 +67,7 @@ class ReciFineNER:
             seed=seed,
             no_cuda=no_cuda,
             local_rank=-1,
-            labels="",
+            labels=None,
             config_name="",
             tokenizer_name="",
             do_lower_case=None,
@@ -128,7 +128,11 @@ class ReciFineNER:
         return_tokens: bool = False,
     ):
 
+        logging.basicConfig(level=logging.INFO)
+
         args = self.args
+
+        # logging.info(args)
 
         # validate that text is provided
         if not isinstance(text, str) or not text.strip():
@@ -157,12 +161,10 @@ class ReciFineNER:
         if not args.labels:
             args.labels = get_labels_by_knowledge_type(args.entity_groups, args.knowledge_type)
 
-
         device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
         args.device = device
         args.n_gpu = torch.cuda.device_count() if device.type == "cuda" else 0
 
-        logging.basicConfig(level=logging.INFO)
         set_seed(args.seed, args.n_gpu)
 
         pad_token_label_id = CrossEntropyLoss().ignore_index
@@ -178,34 +180,44 @@ class ReciFineNER:
         model.to(args.device)
         model.eval()
 
-        logging.basicConfig(level=logging.INFO)
         set_seed(args.seed, args.n_gpu)
 
-        inference_batch_size = args.per_gpu_inf_batch_size * max(1, self.args.n_gpu)
+        inference_batch_size = args.per_gpu_inf_batch_size * max(1, args.n_gpu)
         label_map = {i: label for i, label in enumerate(args.labels)}
 
-        # get corresponding entity group
-        entity_group = args.entity_group_index.get(entity_type)
+        inf_data = []
+        if not args.knowledge_type == "traditional":
+            # get corresponding entity group
+            entity_group = args.entity_group_index.get(entity_type)
 
-        # prepare inference data
-        inf_data = [
-            {
-                "qid": f"{random.randint(1000000)}", 
-                "text": f"{text}", 
-                "entity_type": f"{entity_group.get('type')}", 
-                "entity_group": f"{entity_group.get('group')}", 
-                "group_definition": f"{entity_group.get('group_definition')}", 
-                "definition": f"{entity_group.get('definition')}", 
-                "example": f"{entity_group.get('examples')}", 
-                "question": f"{entity_group.get('question')}",
-                "answer": [],
-            },
-        ]
+            # prepare inference data
+            inf_data = [
+                {
+                    "qid": f"{random.randint(1000000)}", 
+                    "text": f"{text}", 
+                    "entity_type": f"{entity_group.get('type')}", 
+                    "entity_group": f"{entity_group.get('group')}", 
+                    "group_definition": f"{entity_group.get('group_definition')}", 
+                    "definition": f"{entity_group.get('definition')}", 
+                    "example": f"{entity_group.get('examples')}", 
+                    "question": f"{entity_group.get('question')}",
+                    "answer": [],
+                },
+            ]
+        else:
+            # prepare inference data
+            inf_data = [
+                {
+                    "qid": f"{random.randint(1000000)}", 
+                    "text": f"{text}", 
+                    "traditional": ["O"] * len(text.split(" ")),
+                },
+            ]
 
         examples = read_example_from_data(inf_data, args.knowledge_type)
         eval_dataset = load_and_cache_examples_from_list(args, tokenizer, args.labels, pad_token_label_id, inf_data, "inf")
 
-        eval_sampler = SequentialSampler(eval_dataset) if self.args.local_rank == -1 else DistributedSampler(eval_dataset)
+        eval_sampler = SequentialSampler(eval_dataset) if args.local_rank == -1 else DistributedSampler(eval_dataset)
         eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=inference_batch_size)
 
         logger.info("***** Running inference *****")
@@ -228,6 +240,7 @@ class ReciFineNER:
                 logits = outputs[1]
 
             preds = torch.argmax(logits, axis=2).detach().cpu().numpy()
+
             label_ids = inputs["labels"].detach().cpu().numpy()
 
             for i in range(preds.shape[0]):

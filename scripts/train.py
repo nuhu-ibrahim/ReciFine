@@ -92,7 +92,7 @@ def build_parser():
     p.add_argument("--config_name", type=str, default="",
                 help="Model config name/path; defaults to model_name_or_path.")
 
-    p.add_argument("--cache_dir", type=str, default="",
+    p.add_argument("--cache_dir", type=str, default=None,
                 help="Cache directory for models and features.")
 
     p.add_argument("--max_seq_length", type=int, default=128,

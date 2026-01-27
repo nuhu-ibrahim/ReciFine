@@ -35,7 +35,7 @@ def build_parser():
     p.add_argument("--dataset_to_predict", nargs="+", default=None,
                    help="Optional dataset subfolders to predict.")
 
-    p.add_argument("--labels", type=str, default="",
+    p.add_argument("--labels", type=str, default=None,
                    help="""Label file or directory; inferred if empty. If the trask is traditional, 
                            you should provide the directory of the train/val/test dataset so it is inferred.""")
 
@@ -45,7 +45,7 @@ def build_parser():
     p.add_argument("--config_name", type=str, default="",
                    help="Model config name/path; defaults to model_name_or_path.")
 
-    p.add_argument("--cache_dir", type=str, default="",
+    p.add_argument("--cache_dir", type=str, default=None,
                    help="Cache directory for models and features.")
 
     p.add_argument("--max_seq_length", type=int, default=128,
@@ -102,6 +102,8 @@ def build_parser():
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
+    
     args = build_parser().parse_args()
 
     # Merge YAML into args
@@ -124,6 +126,8 @@ def main():
         # Validate AFTER merge for knowledge augmented tasks
         _require(args, ["data_dir", "model_type", "model_name_or_path", "output_dir"])
 
+    logger.debug("Prediction parameters %s", args)
+
     if not (os.path.exists(args.output_dir) and os.listdir(args.output_dir)):
         os.makedirs(args.output_dir, exist_ok=True)
 
@@ -131,7 +135,6 @@ def main():
     args.device = device
     args.n_gpu = torch.cuda.device_count() if device.type == "cuda" else 0
 
-    logging.basicConfig(level=logging.INFO)
     set_seed(args.seed, args.n_gpu)
 
     labels = get_labels(args.labels)
@@ -146,7 +149,6 @@ def main():
         do_lower_case=args.do_lower_case,
     )
     model.to(args.device)
-    logger.debug("Prediction parameters %s", args)
 
     predict_data_dirs = []
     if args.dataset_to_predict:

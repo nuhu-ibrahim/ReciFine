@@ -129,6 +129,9 @@ def apply_layered_yaml_to_args(
     config_type: str = "training",
     task_formulation_attr: str = "task_formulation"
 ) -> argparse.Namespace:
+
+    logging.basicConfig(level=logging.INFO)
+
     repo_root = get_repo_root()
 
     model_registry_attr = "model_registry"

@@ -40,11 +40,11 @@ def get_labels_by_knowledge_type(entity_groups: List[Dict[str, Any]], knowledge_
         if "type" in eg
     }
 
-    labels = ["O"]
+    unique_labels = []
     for t in sorted(unique_types):
-        labels += [f"B-{t}", f"I-{t}"]
+        unique_labels += [f"B-{t}", f"I-{t}"]
 
-    return labels
+    return ["O"] + sorted(unique_labels)
 
 
 def make_label_map(labels: List[str]):

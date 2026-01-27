@@ -57,7 +57,7 @@ def build_parser():
     p.add_argument("--do_lower_case", action="store_true", default=None,
                    help="Whether to lowercase text before tokenization.")
 
-    p.add_argument("--labels", default="", type=str,
+    p.add_argument("--labels", default=None, type=str,
                    help="Label file or directory; inferred if empty.")
 
     p.add_argument("--config_name", default="", type=str,
@@ -66,7 +66,7 @@ def build_parser():
     p.add_argument("--tokenizer_name", default="", type=str,
                    help="Tokenizer name/path; defaults to model_name_or_path.")
 
-    p.add_argument("--cache_dir", default="", type=str,
+    p.add_argument("--cache_dir", default=None, type=str,
                    help="Cache directory for models and features.")
 
     p.add_argument("--max_seq_length", type=int, default=256,
@@ -79,6 +79,8 @@ def build_parser():
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
+
     args = build_parser().parse_args()
 
     ner = ReciFineNER(

@@ -18,6 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+
     args = build_parser().parse_args()
 
     # Merge YAML into args
@@ -33,13 +35,6 @@ def main() -> None:
     # Validate AFTER merge
     _require(args, ["dataset_name", "original_dataset", "data_dir_ka", 
         "dataset_to_evaluate_ka", "data_dir_trad", "dataset_to_evaluate_trad", "entity_groups"])
-
-    # Logging
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO,
-    )
 
     ds = str(args.dataset_name).lower().strip()
     ds_ka = f"{ds}_ka"
