@@ -19,7 +19,7 @@ a curated knowledge prefix to the input text. This library also supports the tra
 
 ## Installation
 
-### Option A: Install from source (recommended)
+### Install from source
 
 ```bash
 git clone https://github.com/nuhu-ibrahim/ReciFine
@@ -27,12 +27,12 @@ cd ReciFine
 pip install -e .
 ```
 
-### Option B: Install from a GitHub release tag (example)
+<!-- ### Option B: Install from a GitHub release tag (example)
 
 ```bash
 pip install https://github.com/nuhu-ibrahim/ReciFine/archive/refs/tags/V1.zip
 ```
-
+ -->
 ---
 
 ## Evaluation scripts

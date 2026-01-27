@@ -55,7 +55,7 @@ ner = ReciFineNER.from_pretrained(
     knowledge_type="question"
 )
 
-text = "Add 2 cups of chopped onions and fry until golden."
+text = "Add 2 cups of chopped onions and fry until golden ."
 
 spans = ner.process_text(
     text,
@@ -67,7 +67,15 @@ for span in spans:
 ```
 
 #### Output
-TODO: add sample outputs
+```
+{
+    'answer': {'QUANTITY': ['2 cups']}, 
+    'words_list': ['Add', '2', 'cups', 'of', 'chopped', 'onions', 'and', 'fry', 'until', 'golden', '.'], 
+    'pred_labels': ['O', 'B-ANS', 'I-ANS', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
+}
+
+```
+
 
 ### Code Sample 2 (Traditional inference)
 Below shows code sample for extracting entities from text using the recipebert model trained on ReciFineGold dataset using the traditional (BIO-n) approach.
@@ -81,7 +89,7 @@ ner = ReciFineNER.from_pretrained(
     task_formulation="traditional",
 )
 
-text = "Add 2 cups of chopped onions and fry until golden."
+text = "Add 2 cups of chopped onions and fry until golden ."
 
 spans = ner.process_text(
     text
@@ -92,6 +100,19 @@ for span in spans:
 ```
 
 #### Output
+```
+[
+    {
+        'answer': {
+            'ACTION BY CHEF': ['Add', 'chopped', 'fry'], 
+            'QUANTITY': ['2 cups'], 
+            'FOOD': ['onions'], 'FOOD STATE': ['golden']
+        }, 
+        'words_list': ['Add', '2', 'cups', 'of', 'chopped', 'onions', 'and', 'fry', 'until', 'golden', '.'],
+        'pred_labels': ['B-ACTION BY CHEF', 'B-QUANTITY', 'I-QUANTITY', 'O', 'B-ACTION BY CHEF', 'B-FOOD', 'O', 'B-ACTION BY CHEF', 'O', 'B-FOOD STATE', 'O']
+    }
+]
+```
 
 ---
 
