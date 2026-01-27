@@ -169,6 +169,12 @@ def apply_layered_yaml_to_args(
         args.repo_root = str(repo_root)
     args._loaded_config_files = [str(p) for p in loaded_files]
 
+    if task_formulation == "traditional":
+        args.knowledge_type = "traditional"
+
+    if knowledge_type == "traditional":
+        args.task_formulation = "traditional"
+
     # condition that works with training/finetuning/evaluation and prediction
     if config_type == "training" or config_type == "finetuning" or config_type == "evaluation" or config_type == "prediction":
 
@@ -191,12 +197,7 @@ def apply_layered_yaml_to_args(
                 if val is not None and (not isinstance(val, str) or val.strip()):
                     setattr(args, base_key, val)
 
-
         if model_name_or_path in (None, "") and (config_type == "finetuning" or config_type == "evaluation" or config_type == "prediction"):
-
-            if task_formulation == "traditional":
-                args.knowledge_type = "traditional"
-
             # when model name or path is not provided in cli and not configured in yaml, we use default in memory
             if getattr(args, model_registry_attr, None) in (None, "") or args.model not in args.model_registry or args.knowledge_type not in args.model_registry[args.model]:
                 # set it to default in file
@@ -239,9 +240,6 @@ def apply_layered_yaml_to_args(
                 raise ValueError(f"model_name_or_path is empty and model_registry is not configured in {dataset} config.")
             elif args.model not in args.model_registry:
                 raise ValueError(f"model_registry has no entry for model='{args.model}'. Available: {list(args.model_registry.keys())}")
-        
-            if task_formulation == "traditional":
-                args.knowledge_type = "traditional"
 
             if args.knowledge_type not in args.model_registry[args.model]:
                 raise ValueError(
@@ -253,9 +251,6 @@ def apply_layered_yaml_to_args(
 
         # resolve path if provided by user  # check if it works if user provides hugging face path
         else:
-            if task_formulation == "traditional":
-                args.knowledge_type = "traditional"
-
             for path_key in set(("model_name_or_path",)) - present_keys:
                 if hasattr(args, path_key):
                     val = getattr(args, path_key)
