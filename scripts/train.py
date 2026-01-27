@@ -82,7 +82,7 @@ def build_parser():
     p.add_argument("--model_name_or_path", type=str, default=None,
                 help="HF model name or local checkpoint path.")
 
-    p.add_argument("--labels", type=str, default="",
+    p.add_argument("--labels", type=str, default=None,
                 help="""Label file or directory; inferred if empty. If the trask is traditional, 
                        you should provide the directory of the train/val/test dataset so it is inferred.""")
 
