@@ -94,12 +94,11 @@ ner = ReciFineNER.from_pretrained(
 
 text = "Add 2 cups of chopped onions and fry until golden ."
 
-spans = ner.process_text(
+prediction = ner.process_text(
     text
 )
 
-for span in spans:
-    print(span)
+print(prediction)
 ```
 
 #### Output
