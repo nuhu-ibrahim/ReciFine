@@ -197,6 +197,12 @@ For detailed, step-by-step guidance, please refer to the following documentation
 
 ---
 
+## Performance of Encoder Models Trained on The ReciFineGold Dataset
+
+![Screenshot 2026-01-29 at 13.48.41](https://cdn-uploads.huggingface.co/production/uploads/6725049d93b72c9eaf7e075e/Pc4uuOpiuQEM7R387hjf5.png)
+
+---
+
 ## Research Papers
 
 ### Knowledge-Augmented and Entity Type-Specific Token Classification
