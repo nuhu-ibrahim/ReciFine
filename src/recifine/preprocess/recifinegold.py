@@ -50,10 +50,21 @@ def _ensure_writable(path: str, overwrite: bool) -> None:
         raise FileExistsError(f"Refusing to overwrite existing file: {path} (use --overwrite)")
 
 
-def _build_char_tag_array(text: str, labels: List[List[Any]], label_map: Dict[str, str]) -> List[str]:
+def _build_char_tag_array(text: str, labels: List[Any], label_map: Dict[str, str]) -> List[str]:
     token_labels = ["O"] * len(text)
 
-    for start, end, raw_label in labels:
+    for ann in labels:
+        if isinstance(ann, dict):
+            start = ann.get("start")
+            end = ann.get("end")
+            raw_label = ann.get("tag")
+
+        elif isinstance(ann, (list, tuple)) and len(ann) == 3:
+            start, end, raw_label = ann
+
+        else:
+            continue
+
         tag = label_map.get(str(raw_label), "O")
         if tag == "O":
             continue
